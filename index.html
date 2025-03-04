@@ -1,39 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <!-- This tag makes sure your page scales correctly on mobile devices -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <!-- Ensures correct scaling on mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>AR Business Card</title>
 
-    <!-- Include A-Frame library: this is a tool that makes 3D scenes in HTML -->
+    <!-- A-Frame core library -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     
-    <!-- Include MindAR for A-Frame: this library lets us track images -->
+    <!-- MindAR for A-Frame (image tracking) -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   </head>
-  <body style="margin: 0; overflow: hidden;">
-    <!-- A-Frame scene: this is where our AR content will live -->
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" 
-             vr-mode-ui="enabled: false" 
-             device-orientation-permission-ui="enabled: false">
-      
-      <!-- Assets section (if you want to preload models, images, videos) -->
+  <body style="margin: 0; padding: 0; overflow: hidden;">
+    <!-- Full-screen A-Frame scene -->
+    <a-scene
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+    >
+      <!-- Preload any assets here if needed -->
       <a-assets>
-        <!-- Example: if you had a model, you could load it here -->
-        <!-- <a-asset-item id="model" src="path/to/model.gltf"></a-asset-item> -->
+        <!-- Example model or image references go here -->
       </a-assets>
-      
-      <!-- The camera: this shows what the device’s camera sees -->
+
+      <!-- The AR camera -->
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-      
-      <!-- This entity will be linked to your business card marker (targetIndex: 0 means the first target) -->
+
+      <!-- The AR content: anchored to the marker (targetIndex: 0) -->
       <a-entity mindar-image-target="targetIndex: 0">
-        <!-- AR Content: for example, a red box and a text message -->
         <a-box position="0 0.5 0" material="color: red;"></a-box>
         <a-text value="Hello AR!" position="0 1 0" align="center"></a-text>
       </a-entity>
-      
     </a-scene>
   </body>
 </html>
