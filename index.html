@@ -1,91 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>AR Business Card (Scanning UI + Overlay at Bottom)</title>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>AR Business Card</title>
+    <!-- A-Frame core library -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
-  <!-- A-Frame core library -->
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- MindAR for A-Frame -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-  <!-- MindAR for A-Frame -->
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <!-- Basic styling -->
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      /* Hide default A-Frame VR buttons only */
+      button.a-enter-vr,
+      .a-enter-vr-button,
+      .a-enter-ar-button,
+      .a-enter-ar,
+      .a-enter-vr {
+        display: none !important;
+      }
 
-  <!-- Hide VR/AR buttons -->
-  <style>
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
+      /* 
+        Let MindAR scanning UI remain visible (no display:none).
+        This ensures we see the scanning overlay. 
+        pointer-events: none recommended so it doesn't block taps 
+        on your HTML overlay, if you had clickable elements behind it.
+      */
+      .mindar-ui-overlay {
+        pointer-events: none;
+      }
 
-    button.a-enter-vr,
-    .a-enter-vr-button,
-    .a-enter-ar-button,
-    .a-enter-ar,
-    .a-enter-vr {
-      display: none !important;
-    }
-  </style>
-</head>
+      /* The HTML overlay is absolutely positioned on screen. */
+      #markerOverlay {
+        position: absolute;
+        display: none;  /* Hidden until marker is found */
+        pointer-events: auto; /* Icons are clickable HTML */
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 
+      A-Frame scene with MindAR's scanning UI:
+      - autoStart: true
+      - no uiLoading/uiScanning/uiError overrides
+    -->
+    <a-scene
+      mindar-image="
+        imageTargetSrc: ./targets.mind;
+        autoStart: true;
+      "
+      device-orientation-permission-ui="enabled: true"
+      vr-mode-ui="enabled: false"
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+    >
+      <a-camera look-controls="enabled: false"></a-camera>
 
-<body>
-  <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;" vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false"
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-    <!-- 1) ASSETS: Preload .png icons -->
-    <a-assets>
-      <img id="iconFB" src="./icons/facebook.png" />
-      <img id="iconIG" src="./icons/instagram.png" />
-      <img id="iconLN" src="./icons/linkedin.png" />
-    </a-assets>
+      <!-- The AR marker entity, with our custom sync-html component -->
+      <a-entity
+        id="marker"
+        mindar-image-target="targetIndex: 0"
+        sync-html
+      >
+        <!-- No 3D geometry here, purely for AR tracking. -->
+      </a-entity>
+    </a-scene>
 
-    <!-- 2) CAMERA with a separate cursor entity -->
-    <a-camera look-controls="enabled: false">
-      <!-- The cursor uses mouse or touch input, and the raycaster will intersect .clickable objects -->
-      <a-entity id="cursor" cursor="fuse: false; rayOrigin: mouse" raycaster="objects: .clickable"
-        position="0 0 -1"></a-entity>
-    </a-camera>
+    <!-- HTML overlay that moves with the marker in screen space -->
+    <div id="markerOverlay">
+      <!-- Add your clickable icons or any HTML here -->
+      <img
+        src="./icons/facebook.png"
+        alt="Facebook"
+        style="width: 50px; height: 50px; cursor: pointer; margin-right: 10px;"
+        onclick="window.open('https://www.facebook.com/login','_blank')"
+      />
+      <img
+        src="./icons/instagram.png"
+        alt="Instagram"
+        style="width: 50px; height: 50px; cursor: pointer; margin-right: 10px;"
+        onclick="window.open('https://www.instagram.com/accounts/login','_blank')"
+      />
+      <img
+        src="./icons/linkedin.png"
+        alt="LinkedIn"
+        style="width: 50px; height: 50px; cursor: pointer;"
+        onclick="window.open('https://www.linkedin.com/login','_blank')"
+      />
+    </div>
 
-    <!-- 3) AR CONTENT anchored to the marker (targetIndex: 0) -->
-    <a-entity mindar-image-target="targetIndex: 0">
-      <!-- Example icons at the bottom (Y = -0.5). Each has .clickable class, explicit width/height -->
-      <a-image id="fbIcon" class="clickable" src="#iconFB" width="0.5" height="0.5" position="-0.6 -0.5 0"></a-image>
+    <!-- Our custom A-Frame component to track marker & move #markerOverlay -->
+    <script>
+      AFRAME.registerComponent('sync-html', {
+        init: function() {
+          const markerEl = this.el;
+          // Show overlay when marker is found
+          markerEl.addEventListener('targetFound', () => {
+            document.getElementById('markerOverlay').style.display = 'block';
+          });
+          // Hide overlay when marker is lost
+          markerEl.addEventListener('targetLost', () => {
+            document.getElementById('markerOverlay').style.display = 'none';
+          });
+        },
+        tick: function() {
+          // If marker not visible, skip
+          if (!this.el.object3D.visible) return;
 
-      <a-image id="igIcon" class="clickable" src="#iconIG" width="0.5" height="0.5" position="0 -0.5 0"></a-image>
+          // 1) Get marker's world position
+          const markerWorldPos = new THREE.Vector3();
+          markerWorldPos.setFromMatrixPosition(this.el.object3D.matrixWorld);
 
-      <a-image id="lnIcon" class="clickable" src="#iconLN" width="0.5" height="0.5" position="0.6 -0.5 0"></a-image>
-    </a-entity>
-  </a-scene>
+          // SHIFT DOWN by 0.5 units so overlay appears at "bottom" of marker
+          markerWorldPos.y -= 0.5;
 
-  <!-- 4) JS: open links on click -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log("DOM loaded. Setting up multiple event listeners...");
+          // 2) Project that 3D position into 2D screen coords
+          const camera = this.el.sceneEl.camera;
+          markerWorldPos.project(camera);
 
-      const fbIcon = document.getElementById('fbIcon');
-      const igIcon = document.getElementById('igIcon');
-      const lnIcon = document.getElementById('lnIcon');
+          // 3) Convert normalized device coords [-1..1] to screen pixel coords
+          const screenX = (markerWorldPos.x * 0.5 + 0.5) * window.innerWidth;
+          const screenY = (-markerWorldPos.y * 0.5 + 0.5) * window.innerHeight;
 
-      // FACEBOOK ICON
-      fbIcon.addEventListener('click', () => console.log("Clicked FB icon!"));
-      fbIcon.addEventListener('mousedown', () => console.log("Mousedown FB icon!"));
-      fbIcon.addEventListener('touchstart', () => console.log("Touchstart FB icon!"));
-
-      // INSTAGRAM ICON
-      igIcon.addEventListener('click', () => console.log("Clicked IG icon!"));
-      igIcon.addEventListener('mousedown', () => console.log("Mousedown IG icon!"));
-      igIcon.addEventListener('touchstart', () => console.log("Touchstart IG icon!"));
-
-      // LINKEDIN ICON
-      lnIcon.addEventListener('click', () => console.log("Clicked LN icon!"));
-      lnIcon.addEventListener('mousedown', () => console.log("Mousedown LN icon!"));
-      lnIcon.addEventListener('touchstart', () => console.log("Touchstart LN icon!"));
-    });
-
-  </script>
-</body>
-
+          // 4) Move #markerOverlay to that position
+          const overlay = document.getElementById('markerOverlay');
+          // Center the overlay on that point
+          overlay.style.transform = `translate(-50%, -50%) translate(${screenX}px, ${screenY}px)`;
+        }
+      });
+    </script>
+  </body>
 </html>
