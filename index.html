@@ -13,25 +13,47 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   </head>
   <body style="margin: 0; padding: 0; overflow: hidden;">
-    <!-- Full-screen A-Frame scene -->
+    <!-- Full-screen A-Frame scene with MindAR image tracking -->
     <a-scene
       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: false"
     >
-      <!-- Preload any assets here if needed -->
+      <!-- 1) ASSETS: Preload your .webp icons -->
       <a-assets>
-        <!-- Example model or image references go here -->
+        <!-- Replace with your own .webp file paths -->
+        <img id="iconFB" src="./icons/facebook.webp" />
+        <img id="iconIG" src="./icons/instagram.webp" />
+        <img id="iconLN" src="./icons/linkedin.webp" />
       </a-assets>
 
-      <!-- The AR camera -->
+      <!-- 2) CAMERA -->
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <!-- The AR content: anchored to the marker (targetIndex: 0) -->
+      <!-- 3) AR CONTENT: anchored to your business card marker (targetIndex: 0) -->
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-box position="0 0.5 0" material="color: red;"></a-box>
-        <a-text value="Hello AR!" position="0 1 0" align="center"></a-text>
+        <!-- Social Icons near the bottom edge of the card -->
+        <a-image
+          src="#iconFB"
+          position="-0.6 -0.5 0"
+          scale="0.3 0.3 0.3"
+          link="href: https://www.facebook.com/login; target: _blank"
+        ></a-image>
+
+        <a-image
+          src="#iconIG"
+          position="0 -0.5 0"
+          scale="0.3 0.3 0.3"
+          link="href: https://www.instagram.com/accounts/login; target: _blank"
+        ></a-image>
+
+        <a-image
+          src="#iconLN"
+          position="0.6 -0.5 0"
+          scale="0.3 0.3 0.3"
+          link="href: https://www.linkedin.com/login; target: _blank"
+        ></a-image>
       </a-entity>
     </a-scene>
   </body>
