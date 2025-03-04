@@ -59,7 +59,7 @@
       <!-- 1) Preload FBX model in a-assets -->
       <a-assets>
         <!-- Replace the path below with your actual .fbx file -->
-        <a-asset-item id="myFbxModel" src="./models/myModel.fbx"></a-asset-item>
+        <a-asset-item id="myFbxModel" src="./Waving.fbx"></a-asset-item>
       </a-assets>
 
       <!-- 2) Camera (no in-scene cursor needed for your HTML overlay) -->
@@ -74,7 +74,7 @@
         <!-- Existing image: left--image.jpg -->
         <a-image
           src="./icons/left--image.jpg"
-          position="-1 0 0"
+          position="-0.7 0 0"
           width="0.5"
           height="0.5"
           onclick="window.open('https://blog.vnshkumar.com/','_blank')"
@@ -82,7 +82,7 @@
 
         <!-- 4) Add the FBX model above the marker (like the top edge) -->
         <a-entity
-          fbx-model="src: ./Waving.fbx"
+          fbx-model="src: #myFbxModel"
           position="0 1 0"  
           scale="0.01 0.01 0.01"
         ></a-entity>
