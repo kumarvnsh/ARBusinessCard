@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <!-- Ensures correct scaling on mobile -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8"/>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
     <title>AR Business Card</title>
 
     <!-- A-Frame core library -->
@@ -12,98 +14,91 @@
     <!-- MindAR for A-Frame (image tracking) -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-    <!-- Force-hide any VR/AR buttons that might appear -->
+    <!-- Hide VR/AR buttons if they appear -->
     <style>
       html, body {
-        margin: 0; 
-        padding: 0; 
+        margin: 0;
+        padding: 0;
         overflow: hidden;
       }
-      button.a-enter-vr, 
-      .a-enter-vr-button, 
-      .a-enter-ar-button, 
-      .a-enter-ar, 
+      /* Force-hide VR/AR buttons */
+      button.a-enter-vr,
+      .a-enter-vr-button,
+      .a-enter-ar-button,
+      .a-enter-ar,
       .a-enter-vr {
         display: none !important;
       }
     </style>
   </head>
   <body>
-    <!-- Full-screen scene with MindAR image tracking -->
     <a-scene
-      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: false"
+      cursor="rayOrigin: mouse"
+      raycaster="objects: .clickable"
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
     >
-      <!-- 1) ASSETS: Preload your .webp icons -->
+      <!-- 1) ASSETS: Preload your .png icons -->
       <a-assets>
         <!-- Update these paths to match your folder structure -->
-        <img id="iconFB" src="./icons/facebook.webp" />
-        <img id="iconIG" src="./icons/instagram.webp" />
-        <img id="iconLN" src="./icons/linkedin.webp" />
+        <img id="iconFB" src="./icons/facebook.png" />
+        <img id="iconIG" src="./icons/instagram.png" />
+        <img id="iconLN" src="./icons/linkedin.png" />
       </a-assets>
 
-      <!-- 2) CAMERA + CURSOR -->
-      <!-- The cursor allows tap/click events on 3D objects -->
-      <a-camera position="0 0 0" look-controls="enabled: false">
-        <a-entity 
-          cursor="rayOrigin: mouse; fuse: false;" 
-          raycaster="objects: .clickable"
-          position="0 0 -1"
-        ></a-entity>
-      </a-camera>
+      <!-- 2) CAMERA -->
+      <a-camera look-controls="enabled: false"></a-camera>
 
-      <!-- 3) AR CONTENT: anchored to your business card marker (targetIndex: 0) -->
+      <!-- 3) AR CONTENT anchored to the marker (targetIndex: 0) -->
       <a-entity mindar-image-target="targetIndex: 0">
         <!-- Social icons at bottom of the card (negative Y) -->
         <a-image
           id="fbIcon"
           class="clickable"
           src="#iconFB"
-          position="-0.3 -0.5 0"
-          scale="0.25 0.25 0.25"
+          width="0.4"
+          height="0.4"
+          position="-0.4 -0.5 0"
         ></a-image>
 
         <a-image
           id="igIcon"
           class="clickable"
           src="#iconIG"
+          width="0.4"
+          height="0.4"
           position="0 -0.5 0"
-          scale="0.25 0.25 0.25"
         ></a-image>
 
         <a-image
           id="lnIcon"
           class="clickable"
           src="#iconLN"
-          position="0.3 -0.5 0"
-          scale="0.25 0.25 0.25"
+          width="0.4"
+          height="0.4"
+          position="0.4 -0.5 0"
         ></a-image>
       </a-entity>
     </a-scene>
 
-    <!-- 4) JS: handle tap/click events and open links -->
+    <!-- 4) JS: open links on click -->
     <script>
-      // Helper function to open a URL in a new tab (or same tab)
-      function openLink(url) {
-        window.open(url, '_blank');
-      }
-
       document.addEventListener('DOMContentLoaded', () => {
-        const fbIcon = document.querySelector('#fbIcon');
-        const igIcon = document.querySelector('#igIcon');
-        const lnIcon = document.querySelector('#lnIcon');
+        const fbIcon = document.getElementById('fbIcon');
+        const igIcon = document.getElementById('igIcon');
+        const lnIcon = document.getElementById('lnIcon');
 
-        // Add both 'mousedown' and 'touchstart' to ensure mobile compatibility
-        fbIcon.addEventListener('mousedown', () => openLink('https://www.facebook.com/login'));
-        fbIcon.addEventListener('touchstart', () => openLink('https://www.facebook.com/login'));
-
-        igIcon.addEventListener('mousedown', () => openLink('https://www.instagram.com/accounts/login'));
-        igIcon.addEventListener('touchstart', () => openLink('https://www.instagram.com/accounts/login'));
-
-        lnIcon.addEventListener('mousedown', () => openLink('https://www.linkedin.com/login'));
-        lnIcon.addEventListener('touchstart', () => openLink('https://www.linkedin.com/login'));
+        fbIcon.addEventListener('click', () => {
+          window.open('https://www.facebook.com/login', '_blank');
+        });
+        igIcon.addEventListener('click', () => {
+          window.open('https://www.instagram.com/accounts/login', '_blank');
+        });
+        lnIcon.addEventListener('click', () => {
+          window.open('https://www.linkedin.com/login', '_blank');
+        });
       });
     </script>
   </body>
