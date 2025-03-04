@@ -14,6 +14,9 @@
     <!-- MindAR for A-Frame -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
+    <!-- A-Frame FBX Loader -->
+    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-extras@6.1.1/dist/aframe-extras.loaders.min.js"></script>
+
     <!-- Basic styling -->
     <style>
       html, body {
@@ -30,30 +33,27 @@
         display: none !important;
       }
 
-      /* 
-        Let MindAR scanning UI remain visible (no display:none).
-        This ensures we see the scanning overlay. 
-        pointer-events: none recommended so it doesn't block taps 
-        on your HTML overlay, if you had clickable elements behind it.
-      */
+      /* Ensure MindAR scanning UI remains visible */
       .mindar-ui-overlay {
         pointer-events: none;
       }
 
-      /* The HTML overlay is absolutely positioned on screen. */
+      /* The HTML overlay for left-image */
+      #leftImageOverlay {
+        position: absolute;
+        display: none;
+        pointer-events: auto;
+      }
+
+      /* The HTML overlay for social links */
       #markerOverlay {
         position: absolute;
-        display: none;  /* Hidden until marker is found */
-        pointer-events: auto; /* Icons are clickable HTML */
+        display: none;
+        pointer-events: auto;
       }
     </style>
   </head>
   <body>
-    <!-- 
-      A-Frame scene with MindAR's scanning UI:
-      - autoStart: true
-      - no uiLoading/uiScanning/uiError overrides
-    -->
     <a-scene
       mindar-image="
         imageTargetSrc: ./targets.mind;
@@ -65,30 +65,43 @@
     >
       <a-camera look-controls="enabled: false"></a-camera>
 
-      <!-- The AR marker entity, with our custom sync-html component -->
-      <a-entity
-        id="marker"
-        mindar-image-target="targetIndex: 0"
-        sync-html
-      >
+      <!-- AR marker entity with our custom sync-html component -->
+      <a-entity id="marker" mindar-image-target="targetIndex: 0" sync-html>
+        <!-- Left Image in AR -->
         <a-image
           src="./icons/left--image.jpg"
-          position="-0.7 0 0"
+          position="-0.9 0 0"
           width="0.5"
           height="0.5"
           onclick="window.open('https://blog.vnshkumar.com/','_blank')"
         ></a-image>
-        <!-- No 3D geometry here, purely for AR tracking. -->
+
+        <!-- 3D Model Positioned on Top of the Target -->
+        <a-entity
+          position="0 1 0"
+          scale="0.01 0.01 0.01"
+          fbx-model="url(./Waving.fbx)"
+          animation="property: rotation; to: 0 360 0; loop: true; dur: 5000"
+        ></a-entity>
       </a-entity>
     </a-scene>
 
-    <!-- HTML overlay that moves with the marker in screen space -->
+    <!-- HTML Overlay for left-image -->
+    <div id="leftImageOverlay">
+      <img
+        src="./icons/left--image.jpg"
+        alt="Left Image"
+        style="width: 100px; height: 100px; cursor: pointer; margin: 20px;"
+        onclick="window.open('https://blog.vnshkumar.com/','_blank')"
+      />
+    </div>
+
+    <!-- HTML Overlay for social links -->
     <div id="markerOverlay">
-      <!-- Add your clickable icons or any HTML here -->
       <img
         src="./icons/facebook.png"
         alt="Facebook"
-        style="width: 80px; height: 80px; cursor: pointer; margin-right: 10px;margin-top: 300px;"
+        style="width: 80px; height: 80px; cursor: pointer; margin-right: 10px; margin-top: 300px;"
         onclick="window.open('https://blog.vnshkumar.com/','_blank')"
       />
       <img
@@ -100,48 +113,49 @@
       <img
         src="./icons/linkedin.png"
         alt="LinkedIn"
-        style="width: 80px; height: 80px; cursor: pointer;margin-top: 300px;"
+        style="width: 80px; height: 80px; cursor: pointer; margin-top: 300px;"
         onclick="window.open('https://www.linkedin.com/in/vnshkumar/','_blank')"
       />
     </div>
 
-    <!-- Our custom A-Frame component to track marker & move #markerOverlay -->
+    <!-- Sync HTML Overlay with Marker -->
     <script>
       AFRAME.registerComponent('sync-html', {
         init: function() {
           const markerEl = this.el;
-          // Show overlay when marker is found
-          markerEl.addEventListener('targetFound', () => {
-            document.getElementById('markerOverlay').style.display = 'block';
+          const leftImageOverlay = document.getElementById("leftImageOverlay");
+          const socialOverlay = document.getElementById("markerOverlay");
+
+          markerEl.addEventListener("targetFound", () => {
+            leftImageOverlay.style.display = "block";
+            socialOverlay.style.display = "block";
           });
-          // Hide overlay when marker is lost
-          markerEl.addEventListener('targetLost', () => {
-            document.getElementById('markerOverlay').style.display = 'none';
+
+          markerEl.addEventListener("targetLost", () => {
+            leftImageOverlay.style.display = "none";
+            socialOverlay.style.display = "none";
           });
         },
+
         tick: function() {
-          // If marker not visible, skip
           if (!this.el.object3D.visible) return;
 
-          // 1) Get marker's world position
+          // Get marker position
           const markerWorldPos = new THREE.Vector3();
           markerWorldPos.setFromMatrixPosition(this.el.object3D.matrixWorld);
 
-          // SHIFT DOWN by 0.5 units so overlay appears at "bottom" of marker
-          markerWorldPos.y -= 0.5;
-
-          // 2) Project that 3D position into 2D screen coords
+          // Adjust positions for overlays
           const camera = this.el.sceneEl.camera;
           markerWorldPos.project(camera);
 
-          // 3) Convert normalized device coords [-1..1] to screen pixel coords
           const screenX = (markerWorldPos.x * 0.5 + 0.5) * window.innerWidth;
           const screenY = (-markerWorldPos.y * 0.5 + 0.5) * window.innerHeight;
 
-          // 4) Move #markerOverlay to that position
-          const overlay = document.getElementById('markerOverlay');
-          // Center the overlay on that point
-          overlay.style.transform = `translate(-50%, -50%) translate(${screenX}px, ${screenY}px)`;
+          const leftImageOverlay = document.getElementById("leftImageOverlay");
+          leftImageOverlay.style.transform = `translate(-50%, -50%) translate(${screenX - 100}px, ${screenY}px)`;
+
+          const socialOverlay = document.getElementById("markerOverlay");
+          socialOverlay.style.transform = `translate(-50%, -50%) translate(${screenX}px, ${screenY + 100}px)`;
         }
       });
     </script>
