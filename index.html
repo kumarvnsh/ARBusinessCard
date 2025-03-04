@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
-    <title>AR Business Card (Scanning UI + Overlay + FBX Model)</title>
+    <title>AR Business Card (Scanning UI + Overlay at Bottom)</title>
 
     <!-- A-Frame core library -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
@@ -14,9 +14,7 @@
     <!-- MindAR for A-Frame -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-    <!-- A-Frame Extras for FBX loading -->
-    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-extras@7.0.0/dist/aframe-extras.loaders.min.js"></script>
-
+    <!-- Basic styling -->
     <style>
       html, body {
         margin: 0;
@@ -32,7 +30,12 @@
         display: none !important;
       }
 
-      /* Let MindAR scanning UI remain visible (pointer-events: none so it doesn't block clicks) */
+      /* 
+        Let MindAR scanning UI remain visible (no display:none).
+        This ensures we see the scanning overlay. 
+        pointer-events: none recommended so it doesn't block taps 
+        on your HTML overlay, if you had clickable elements behind it.
+      */
       .mindar-ui-overlay {
         pointer-events: none;
       }
@@ -46,7 +49,11 @@
     </style>
   </head>
   <body>
-    <!-- A-Frame scene with MindAR scanning UI -->
+    <!-- 
+      A-Frame scene with MindAR's scanning UI:
+      - autoStart: true
+      - no uiLoading/uiScanning/uiError overrides
+    -->
     <a-scene
       mindar-image="
         imageTargetSrc: ./targets.mind;
@@ -56,22 +63,14 @@
       vr-mode-ui="enabled: false"
       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
     >
-      <!-- 1) Preload FBX model in a-assets -->
-      <a-assets>
-        <!-- Replace the path below with your actual .fbx file -->
-        <a-asset-item id="myFbxModel" src="./models/myModel.fbx"></a-asset-item>
-      </a-assets>
-
-      <!-- 2) Camera (no in-scene cursor needed for your HTML overlay) -->
       <a-camera look-controls="enabled: false"></a-camera>
 
-      <!-- 3) The AR marker entity, with sync-html and your existing content -->
+      <!-- The AR marker entity, with our custom sync-html component -->
       <a-entity
         id="marker"
         mindar-image-target="targetIndex: 0"
         sync-html
       >
-        <!-- Existing image: left--image.jpg -->
         <a-image
           src="./icons/left--image.jpg"
           position="-1 0 0"
@@ -79,22 +78,17 @@
           height="0.5"
           onclick="window.open('https://blog.vnshkumar.com/','_blank')"
         ></a-image>
-
-        <!-- 4) Add the FBX model above the marker (like the top edge) -->
-        <a-entity
-          fbx-model="src: ./Waving.fbx"
-          position="0 1 0"  
-          scale="0.01 0.01 0.01"
-        ></a-entity>
+        <!-- No 3D geometry here, purely for AR tracking. -->
       </a-entity>
     </a-scene>
 
-    <!-- 5) HTML overlay that moves with the marker in 2D screen space -->
+    <!-- HTML overlay that moves with the marker in screen space -->
     <div id="markerOverlay">
+      <!-- Add your clickable icons or any HTML here -->
       <img
         src="./icons/facebook.png"
         alt="Facebook"
-        style="width: 80px; height: 80px; cursor: pointer; margin-right: 10px; margin-top: 300px;"
+        style="width: 80px; height: 80px; cursor: pointer; margin-right: 10px;margin-top: 300px;"
         onclick="window.open('https://blog.vnshkumar.com/','_blank')"
       />
       <img
@@ -106,12 +100,12 @@
       <img
         src="./icons/linkedin.png"
         alt="LinkedIn"
-        style="width: 80px; height: 80px; cursor: pointer; margin-top: 300px;"
+        style="width: 80px; height: 80px; cursor: pointer;margin-top: 300px;"
         onclick="window.open('https://www.linkedin.com/in/vnshkumar/','_blank')"
       />
     </div>
 
-    <!-- 6) sync-html component to track marker & move #markerOverlay -->
+    <!-- Our custom A-Frame component to track marker & move #markerOverlay -->
     <script>
       AFRAME.registerComponent('sync-html', {
         init: function() {
