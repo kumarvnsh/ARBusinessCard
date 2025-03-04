@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR Business Card (Socials Only)</title>
+
+    <!-- A-Frame core library -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    
+    <!-- MindAR for image tracking with A-Frame -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
+    <!-- (Optional) A-Frame Extras if you need additional features later
+    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+    -->
+  </head>
+
+  <body style="margin: 0; overflow: hidden;">
+    <!-- A-Frame scene with MindAR image tracking -->
+    <a-scene
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+      embedded
+    >
+      <!-- 1) ASSETS: Preload your social icons -->
+      <a-assets>
+        <!-- Replace with your own icon file paths -->
+        <img id="iconFB" src="./icons/facebook.png" />
+        <img id="iconIG" src="./icons/instagram.png" />
+        <img id="iconLN" src="./icons/linkedin.png" />
+      </a-assets>
+
+      <!-- 2) CAMERA -->
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <!-- 3) AR CONTENT: anchored to your business card marker (targetIndex: 0) -->
+      <a-entity mindar-image-target="targetIndex: 0">
+        <!-- Social Icons (clickable) -->
+        <a-image
+          src="#iconFB"
+          position="-0.6 0.5 0"
+          scale="0.3 0.3 0.3"
+          class="clickable"
+          link="href: https://facebook.com/YourProfile; target: _blank"
+        ></a-image>
+
+        <a-image
+          src="#iconIG"
+          position="0 0.5 0"
+          scale="0.3 0.3 0.3"
+          class="clickable"
+          link="href: https://instagram.com/YourProfile; target: _blank"
+        ></a-image>
+
+        <a-image
+          src="#iconLN"
+          position="0.6 0.5 0"
+          scale="0.3 0.3 0.3"
+          class="clickable"
+          link="href: https://linkedin.com/in/YourProfile; target: _blank"
+        ></a-image>
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
