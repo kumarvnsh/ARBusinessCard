@@ -2,26 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8"/>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
     <title>AR Business Card</title>
 
     <!-- A-Frame core library -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     
-    <!-- MindAR for A-Frame (image tracking) -->
+    <!-- MindAR for A-Frame -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-    <!-- Hide VR/AR buttons if they appear -->
+    <!-- Force-hide VR/AR buttons -->
     <style>
       html, body {
-        margin: 0;
-        padding: 0;
+        margin: 0; 
+        padding: 0; 
         overflow: hidden;
       }
-      /* Force-hide VR/AR buttons */
       button.a-enter-vr,
       .a-enter-vr-button,
       .a-enter-ar-button,
@@ -32,6 +28,7 @@
     </style>
   </head>
   <body>
+    <!-- Full-screen A-Frame scene -->
     <a-scene
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
       vr-mode-ui="enabled: false"
@@ -40,9 +37,9 @@
       raycaster="objects: .clickable"
       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
     >
-      <!-- 1) ASSETS: Preload your .png icons -->
+      <!-- 1) ASSETS: Preload .png icons -->
       <a-assets>
-        <!-- Update these paths to match your folder structure -->
+        <!-- Make sure these paths match your structure exactly -->
         <img id="iconFB" src="./icons/facebook.png" />
         <img id="iconIG" src="./icons/instagram.png" />
         <img id="iconLN" src="./icons/linkedin.png" />
@@ -51,16 +48,16 @@
       <!-- 2) CAMERA -->
       <a-camera look-controls="enabled: false"></a-camera>
 
-      <!-- 3) AR CONTENT anchored to the marker (targetIndex: 0) -->
+      <!-- 3) AR CONTENT anchored to your marker (targetIndex: 0) -->
       <a-entity mindar-image-target="targetIndex: 0">
-        <!-- Social icons at bottom of the card (negative Y) -->
+        <!-- Three icons at bottom (Y = -0.5) -->
         <a-image
           id="fbIcon"
           class="clickable"
           src="#iconFB"
           width="0.4"
           height="0.4"
-          position="-0.4 -0.5 0"
+          position="-0.6 -0.5 0"
         ></a-image>
 
         <a-image
@@ -78,26 +75,34 @@
           src="#iconLN"
           width="0.4"
           height="0.4"
-          position="0.4 -0.5 0"
+          position="0.6 -0.5 0"
         ></a-image>
       </a-entity>
     </a-scene>
 
-    <!-- 4) JS: open links on click -->
+    <!-- 4) JavaScript to open links -->
     <script>
       document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM loaded. Setting up click handlers...');
+
         const fbIcon = document.getElementById('fbIcon');
         const igIcon = document.getElementById('igIcon');
         const lnIcon = document.getElementById('lnIcon');
 
         fbIcon.addEventListener('click', () => {
-          window.open('https://www.facebook.com/login', '_blank');
+          console.log('Clicked FB icon');
+          // Try opening in same tab (_self) to avoid iOS pop-up blocking
+          window.open('https://www.facebook.com/login', '_self');
         });
+
         igIcon.addEventListener('click', () => {
-          window.open('https://www.instagram.com/accounts/login', '_blank');
+          console.log('Clicked IG icon');
+          window.open('https://www.instagram.com/accounts/login', '_self');
         });
+
         lnIcon.addEventListener('click', () => {
-          window.open('https://www.linkedin.com/login', '_blank');
+          console.log('Clicked LN icon');
+          window.open('https://www.linkedin.com/login', '_self');
         });
       });
     </script>
