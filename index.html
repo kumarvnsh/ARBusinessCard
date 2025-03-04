@@ -11,11 +11,11 @@
     <!-- MindAR for A-Frame -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-    <!-- Force-hide VR/AR buttons -->
+    <!-- Hide VR/AR buttons -->
     <style>
       html, body {
-        margin: 0; 
-        padding: 0; 
+        margin: 0;
+        padding: 0;
         overflow: hidden;
       }
       button.a-enter-vr,
@@ -28,29 +28,33 @@
     </style>
   </head>
   <body>
-    <!-- Full-screen A-Frame scene -->
     <a-scene
       mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: false"
-      cursor="rayOrigin: mouse"
-      raycaster="objects: .clickable"
       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
     >
       <!-- 1) ASSETS: Preload .png icons -->
       <a-assets>
-        <!-- Make sure these paths match your structure exactly -->
-        <img id="iconFB" src="./icons/facebook.png" />
-        <img id="iconIG" src="./icons/instagram.png" />
-        <img id="iconLN" src="./icons/linkedin.png" />
+        <img id="iconFB" src="./icons/facebook.png"/>
+        <img id="iconIG" src="./icons/instagram.png"/>
+        <img id="iconLN" src="./icons/linkedin.png"/>
       </a-assets>
 
-      <!-- 2) CAMERA -->
-      <a-camera look-controls="enabled: false"></a-camera>
+      <!-- 2) CAMERA with a separate cursor entity -->
+      <a-camera look-controls="enabled: false">
+        <!-- The cursor uses mouse or touch input, and the raycaster will intersect .clickable objects -->
+        <a-entity
+          id="cursor"
+          cursor="fuse: false; rayOrigin: mouse"
+          raycaster="objects: .clickable"
+          position="0 0 -1"
+        ></a-entity>
+      </a-camera>
 
-      <!-- 3) AR CONTENT anchored to your marker (targetIndex: 0) -->
+      <!-- 3) AR CONTENT anchored to the marker (targetIndex: 0) -->
       <a-entity mindar-image-target="targetIndex: 0">
-        <!-- Three icons at bottom (Y = -0.5) -->
+        <!-- Example icons at the bottom (Y = -0.5). Each has .clickable class, explicit width/height -->
         <a-image
           id="fbIcon"
           class="clickable"
@@ -80,28 +84,25 @@
       </a-entity>
     </a-scene>
 
-    <!-- 4) JavaScript to open links -->
+    <!-- 4) JS: open links on click -->
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOM loaded. Setting up click handlers...');
+        console.log("DOM loaded. Setting up click handlers...");
 
         const fbIcon = document.getElementById('fbIcon');
         const igIcon = document.getElementById('igIcon');
         const lnIcon = document.getElementById('lnIcon');
 
         fbIcon.addEventListener('click', () => {
-          console.log('Clicked FB icon');
-          // Try opening in same tab (_self) to avoid iOS pop-up blocking
+          console.log("Clicked FB icon!");
           window.open('https://www.facebook.com/login', '_self');
         });
-
         igIcon.addEventListener('click', () => {
-          console.log('Clicked IG icon');
+          console.log("Clicked IG icon!");
           window.open('https://www.instagram.com/accounts/login', '_self');
         });
-
         lnIcon.addEventListener('click', () => {
-          console.log('Clicked LN icon');
+          console.log("Clicked LN icon!");
           window.open('https://www.linkedin.com/login', '_self');
         });
       });
